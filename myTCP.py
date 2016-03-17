@@ -8,7 +8,7 @@
 import socket
 import time
 
-TCP_IP = '54.191.2.249' # C2M TCP Server
+TCP_IP = '199.108.99.62' # C2M TCP Server
 TCP_PORT = 3001         # C2M TCP Port
 BUFFER_SIZE = 1024
 apikey = 'z7s1iZ1014kWrrVfukW1RolO39cEwg'
@@ -18,12 +18,13 @@ def TCP_Send(dat_MESSAGE):
     pre_MESSAGE = 'apikey:'+apikey+',feedId:'+feedId+',feed='
 
     MESSAGE = pre_MESSAGE + dat_MESSAGE
-
+    length = len(MESSAGE)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
     if s.send(MESSAGE):
         print 'TCP Message: ', MESSAGE
-        print 'Sent time: ', time.asctime()
+        print 'Sent time: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        print 'Length of the Message is [ %d ]' % length
         return True
     else:
         print 'Try Again!'
@@ -34,9 +35,11 @@ def TCP_Receive():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
     data = s.recv(BUFFER_SIZE)
+    length = len(data)
     if cmp(data,'')!=0:
         print 'Received Data:', data
-        print 'Received time: ', time.asctime()
+        print 'Received time: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        print 'Length of the Message is [ %d ]' % length
     else:
         pass
     s.close()
