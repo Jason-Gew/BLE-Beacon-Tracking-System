@@ -5,6 +5,7 @@
 # C2M Beacon Tracking System can not be copied and/or distributed without the express
 # Permission of Ge Wu
 
+# Deprecated
 
 import time
 import datetime
@@ -15,6 +16,7 @@ import threading
 import myTCP
 import bluetooth._bluetooth as bluez
 
+# Deprecated
 
 new_apikey = ''
 new_feedid = 'W57OsjCmhFSCxii6vLsq1A3Ar5ksbFzrst1A09lKTwg='
