@@ -1,9 +1,9 @@
 ## BLE-Beacon-Tracking-System
 
 
-<div style="text-align:center">
+<div style="text-align:right">
     <span style="float:right">
-        By &nbsp;<a href="https://jason-gew.github.io" target="_blank"> Jason/GeW </a>&nbsp;
+        By <a href="https://jason-gew.github.io" target="_blank"> Jason/GeW </a>&nbsp;
     </span>
 </div>
 
@@ -46,6 +46,8 @@ The topic structure:
 
 5. Add [SQLite3](https://docs.python.org/3/library/sqlite3.html) for better beacon UUID management on edge-devices.
 
+
+6. Upgrade beacon tracking logic on client.
 
 
 ### Addition
