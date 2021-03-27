@@ -53,5 +53,5 @@ The topic structure:
 ### Addition
 Server side code based on Spring Boot 2.4.x and ReactJS framework
 
-You are welcome to ask any questions [here](https://github.com/Jason-Gew/File-System-Client/issues)!
+You are welcome to ask any questions [here](https://github.com/Jason-Gew/BLE-Beacon-Tracking-System/issues)!
 
