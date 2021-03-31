@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 # BLE iBeaconScanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # JCS 06/07/14
 
 # Modified by Ge Wu on Jul/14/2015
+# Deprecated by Ge Wu on Mar/31/2021, No Long Supported
 
 DEBUG = False
 
@@ -41,19 +43,22 @@ def returnnumberpacket(pkt):
     myInteger = 0
     multiple = 256
     for c in pkt:
-        myInteger +=  struct.unpack("B",c)[0] * multiple
+        myInteger += struct.unpack("B",c)[0] * multiple
         multiple = 1
     return myInteger 
 
+
 def returnstringpacket(pkt):
-    myString = "";
+    myString = ""
     for c in pkt:
         myString +=  "%02x" %struct.unpack("B",c)[0]
     return myString 
 
+
 def printpacket(pkt):
     for c in pkt:
         sys.stdout.write("%02x " % struct.unpack("B",c)[0])
+
 
 def get_packed_bdaddr(bdaddr_string):
     packable_addr = []
@@ -63,14 +68,18 @@ def get_packed_bdaddr(bdaddr_string):
         packable_addr.append(int(b, 16))
     return struct.pack("<BBBBBB", *packable_addr)
 
+
 def packed_bdaddr_to_string(bdaddr_packed):
     return ':'.join('%02x'%i for i in struct.unpack("<BBBBBB", bdaddr_packed[::-1]))
+
 
 def hci_enable_le_scan(sock):
     hci_toggle_le_scan(sock, 0x01)
 
+
 def hci_disable_le_scan(sock):
     hci_toggle_le_scan(sock, 0x00)
+
 
 def hci_toggle_le_scan(sock, enable):
 ## hci_le_set_scan_enable(dd, 0x01, filter_dup, 1000);
@@ -102,7 +111,6 @@ def hci_le_set_scan_parameters(sock):
     SCAN_TYPE = 0x01
 
 
-    
 def parse_events(sock, loop_count=100):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
@@ -120,52 +128,48 @@ def parse_events(sock, loop_count=100):
     for i in range(0, loop_count):
         pkt = sock.recv(255)
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
-        #print "--------------" 
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
-		i =0
+            i =0
         elif event == bluez.EVT_NUM_COMP_PKTS:
-                i =0 
+            i =0
         elif event == bluez.EVT_DISCONN_COMPLETE:
-                i =0 
+            i =0
         elif event == LE_META_EVENT:
             subevent, = struct.unpack("B", pkt[3])
             pkt = pkt[4:]
             if subevent == EVT_LE_CONN_COMPLETE:
                 le_handle_connection_complete(pkt)
             elif subevent == EVT_LE_ADVERTISING_REPORT:
-                #print "advertising report"
+                # print "advertising report"
                 num_reports = struct.unpack("B", pkt[0])[0]
                 report_pkt_offset = 0
                 for i in range(0, num_reports):
-		
-		    if (DEBUG == True):
-			print "-------------"
-                    	#print "\tfullpacket: ", printpacket(pkt)
-		    	print "\tUDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-		    	print "\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
-		    	print "\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
-                    	print "\tMAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-		    	# commented out - don't know what this byte is.  It's NOT TXPower
-                    	txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
-                    	print "\t(Unknown):", txpower
-	
-                    	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
-                    	print "\tRSSI:", rssi
-		    # build the return string
-                    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-		    Adstring += ","
-		    Adstring += returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]) 
-		    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]) 
-		    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]) 
-		    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -2])
-		    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
+                    if DEBUG:
+                        print("-------------")
+                        print("\tUDID: ", printpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]))
+                        print("\tMAJOR: ", printpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]))
+                        print("\tMINOR: ", printpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]))
+                        print("\tMAC address: ", packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]))
+                        # commented out - don't know what this byte is.  It's NOT TXPower
+                        txpower, = struct.unpack("b", pkt[report_pkt_offset -2])
+                        print("\t(Unknown):", txpower)
 
-		    #print "\tAdstring=", Adstring
- 		    myFullList.append(Adstring)
+                        rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
+                        print("\tRSSI:", rssi)
+                    # build the return string
+                    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+                    Adstring += ","
+                    Adstring += returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
+                    Adstring += ","
+                    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
+                    Adstring += ","
+                    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
+                    Adstring += ","
+                    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -2])
+                    Adstring += ","
+                    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
+                    # print "\tAdstring=", Adstring
+                    myFullList.append(Adstring)
                 done = True
-    sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
+    sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
     return myFullList
