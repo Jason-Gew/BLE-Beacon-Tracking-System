@@ -9,7 +9,7 @@
 
 import time
 import datetime
-import blescan
+
 import sys
 import os
 import threading

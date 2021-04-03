@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Jason/GeW'
+
 import configparser as cp
 import json
 import uuid
@@ -63,4 +65,6 @@ class AppConfig(object):
         variables = vars(self)
         del variables['config']
         return json.dumps(variables, skipkeys=False, indent=2)
+
+
 

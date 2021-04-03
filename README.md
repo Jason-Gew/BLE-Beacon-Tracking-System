@@ -47,7 +47,22 @@ The topic structure:
 5. Add [SQLite3](https://docs.python.org/3/library/sqlite3.html) for better beacon UUID management on edge-devices.
 
 
-6. Upgrade beacon tracking logic on client.
+6. Upgrade beacon tracking logic on client side.
+
+
+
+### Installation
+Some Linux libraries and Python packages are required:
+```bash
+sudo apt install libbluetooth-dev
+sudo apt install libboost-python-dev
+sudo apt install libboost-thread-dev
+sudo pip3 install gattlib
+sudo pip3 install pybluez
+sudo pip3 install paho-mqtt
+sudo pip3 install sqlalchemy
+```
+
 
 
 ### Addition

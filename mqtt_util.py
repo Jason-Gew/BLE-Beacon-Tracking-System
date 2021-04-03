@@ -83,7 +83,7 @@ class MqttUtil(object):
             log.error('Publish Message [{}] Failed: {}'.format(message, re))
 
     def subscribe(self, topic=None, qos=0):
-        if topic is None or topic == '':
+        if topic is None or len(topic) < 3:
             topic = self.config.cmd_topic
         if qos is None or qos == 0 or qos < 1 or qos > 2:
             qos = self.config.sub_qos
