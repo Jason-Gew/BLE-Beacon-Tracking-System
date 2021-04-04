@@ -10,7 +10,7 @@ Click==7.0
 colorama==0.4.3
 command-not-found==0.3
 configobj==5.0.6
-cryptography==2.8
+cryptography==3.3.2
 cupshelpers==1.0
 dbus-python==1.2.16
 defer==1.0.6
