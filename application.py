@@ -25,14 +25,14 @@ COMMAND_PATH = 'config/commands.json'
 COMMAND_KEY = 'command'
 TRACE_KEY = 'trace'
 APP_CONFIG = None
+SHUTDOWN = False
 # -------- Static Variables End --------
 log = Logger('logs/app.log').logger
 
 
 def get_timestamp():
-    ts = time.time()
-    dtz = time.strftime(DATETIME_FORMAT, time.localtime(ts))
-    return int(ts), dtz
+    dtz = time.strftime(DATETIME_FORMAT, time.localtime(time.time()))
+    return dtz
 
 
 def welcome():
@@ -59,6 +59,7 @@ class CommandListener(threading.Thread):
         threading.Thread.__init__(self, name=thread_name)
 
     def run(self) -> None:
+        global APP_CONFIG, SHUTDOWN
         while not self.stop:
             if not self.msg_queue.empty():
                 message = None
@@ -81,12 +82,12 @@ class CommandListener(threading.Thread):
                             client_message = MqttMsg('String', cmd, 'System Will Shutdown After 3 Seconds',
                                                      cmd_dict.get(TRACE_KEY))
                             self.mqtt_client.publish(client_message.to_json())
+                            SHUTDOWN = True
                             time.sleep(3)
                             self.mqtt_client.disconnect()
-                            exit(0)
+                            quit()
                         elif ('beacon-scan' == cmd or 'scan' == cmd) and cmd_dict.get(TRACE_KEY) is not None:
                             scan_duration = cmd_dict.get('duration')
-                            beacon_data = []
                             log.info("Received Manual Beacon-Scan Requirement, Duration={}".format(scan_duration))
                             if scan_duration is not None and 1 <= scan_duration < 10:
                                 beacon_data = beacon_scanner.scan(scan_duration)
@@ -94,6 +95,23 @@ class CommandListener(threading.Thread):
                                 beacon_data = beacon_scanner.scan()
                             client_message = MqttMsg('JSONArray', cmd, 'OK', data=list(beacon_data))
                             self.mqtt_client.publish(client_message.to_json(), APP_CONFIG.data_topic)
+                        elif 'change-scan-mode' == cmd and cmd_dict.get('scan-mode') is not None:
+                            scan_mode = str(cmd_dict.get('scan-mode'))
+                            if scan_mode.lower() != 'command' and scan_mode.lower() != 'auto':
+                                log.warning("Received Invalid change-scan-mode Command: scan-mode=" + scan_mode)
+                            else:
+                                log.info("Received change-scan-mode Command, Change scan_mode [{}] -> [{}]"
+                                         .format(APP_CONFIG.scan_mode, scan_mode))
+                                APP_CONFIG.scan_mode = scan_mode
+                            if cmd_dict.get('duration') is not None and isinstance(cmd_dict.get('duration'), int):
+                                if 1 < cmd_dict.get('duration') < 10:
+                                    log.info("change-scan-mode and set scan_duration [{}] -> [{}]"
+                                             .format(APP_CONFIG.scan_duration, cmd_dict.get('duration')))
+                                    APP_CONFIG.scan_duration = int(cmd_dict.get('duration'))
+                        elif 'show-config' == cmd and cmd_dict.get(TRACE_KEY) is not None:
+                            log.info("Received Show App Config from Trace: " + cmd_dict.get(TRACE_KEY))
+                            client_message = MqttMsg('JSONObject', cmd, 'OK', data=APP_CONFIG.to_dict())
+                            self.mqtt_client.publish(client_message.to_json())
                         else:
                             log.info("Unknown Command: " + message)
 
@@ -108,9 +126,47 @@ class CommandListener(threading.Thread):
         super(CommandListener, self).join()
 
 
+class ScannerThread(threading.Thread):
+    """
+    Beacon Scanner Thread, Automatic Scan and Publish Beacon Data
+    """
+    mqtt_client = None
+    stop = False
+
+    def __init__(self, thread_name, mqtt_client) -> None:
+        if mqtt_client is None or not isinstance(mqtt_client, MqttUtil):
+            raise TypeError("Invalid MqttUtil")
+        else:
+            self.mqtt_client = mqtt_client
+        threading.Thread.__init__(self, name=thread_name)
+
+    def run(self) -> None:
+        global APP_CONFIG
+        while not self.stop:
+            if APP_CONFIG.scan_mode.lower() == 'auto':
+                time.sleep(int(APP_CONFIG.scan_period))
+                duration = int(APP_CONFIG.scan_duration)
+                if SHUTDOWN:
+                    exit(0)
+                if 1 < duration < 10:
+                    beacon_data = beacon_scanner.scan(duration)
+                else:
+                    beacon_data = beacon_scanner.scan()
+                client_message = MqttMsg('JSONArray', 'data', 'OK', data=list(beacon_data))
+                log.info("Preparing Beacon Data = {}".format(beacon_data))
+                self.mqtt_client.publish(client_message.to_json(), str(APP_CONFIG.data_topic))
+            else:
+                time.sleep(1)
+                pass
+
+    def join(self, timeout: Optional[float] = ...) -> None:
+        self.stop = True
+        super(ScannerThread, self).join()
+
+
 if __name__ == '__main__':
     welcome()
-    ts, dt = get_timestamp()
+    dt = get_timestamp()
     configure = AppConfig(CONFIG_PATH)
     configure.load()
     log.info("Beacon Tracking Client Initializing @ [{}] => AppConfig:\n{}".format(dt, configure))
@@ -120,13 +176,16 @@ if __name__ == '__main__':
     MQTT_UTIL.connect()
     MQTT_UTIL.subscribe()
     cmdListener = CommandListener('Command-Listener', queue, MQTT_UTIL)
+    scanner = ScannerThread('Beacon-Scanner', MQTT_UTIL)
     try:
         cmdListener.start()
+        scanner.start()
         MQTT_UTIL.client.loop_forever()
     except KeyboardInterrupt as ki:
+        SHUTDOWN = True
         log.info("User Terminate the Client...\n\n====== Thank You for Using BLE Beacon Tracking Client V{} ======\n\n"
                  .format(__version__))
-        cmdListener.join()
         MQTT_UTIL.disconnect()
+        cmdListener.join()
+        scanner.join()
         exit(0)
-

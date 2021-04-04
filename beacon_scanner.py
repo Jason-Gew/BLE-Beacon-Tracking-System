@@ -48,7 +48,7 @@ def scan(duration=3):
 
 
 # Test Only
-if __name__ == '__main__':
-    results = scan()
-    print(json.dumps(results, indent=2))
-
+# if __name__ == '__main__':
+#     results = scan()
+#     print(json.dumps(results, indent=2))
+#

@@ -146,13 +146,13 @@ class MqttMsg(object):
 
 
 # Test Only
-if __name__ == '__main__':
-    configure = AppConfig('config/app-config.ini')
-    configure.load()
-    mqtt_client = MqttUtil(configure)
-    msg = MqttMsg(configure.uuid, "TEST", "Hello")
-    print(msg.to_json())
-    mqtt_client.connect()
-    mqtt_client.publish(msg)
-    mqtt_client.subscribe()
-    mqtt_client.client.loop_forever()
+# if __name__ == '__main__':
+#     configure = AppConfig('config/app-config.ini')
+#     configure.load()
+#     mqtt_client = MqttUtil(configure)
+#     msg = MqttMsg(configure.uuid, "TEST", "Hello")
+#     print(msg.to_json())
+#     mqtt_client.connect()
+#     mqtt_client.publish(msg)
+#     mqtt_client.subscribe()
+#     mqtt_client.client.loop_forever()

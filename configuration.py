@@ -16,6 +16,9 @@ class AppConfig(object):
     name = ''
     uuid = ''
     mac = ''
+    scan_period = 10
+    scan_duration = 3
+    scan_mode = 'server'
     # MQTT
     broker = ''
     port = 1883
@@ -41,6 +44,10 @@ class AppConfig(object):
         self.uuid = self.config.get(CLIENT_SECTION, 'uuid')
         if self.uuid is None or self.uuid == '':
             self.uuid = self.mac
+        self.scan_period = self.config.getint(CLIENT_SECTION, 'scanPeriod')
+        self.scan_duration = self.config.getint(CLIENT_SECTION, 'scanDuration')
+        self.scan_mode = self.config.get(CLIENT_SECTION, 'scanMode')
+
         self.broker = self.config.get(MQTT_SECTION, 'broker')
         self.port = self.config.getint(MQTT_SECTION, 'port')
         self.tls = self.config.getboolean(MQTT_SECTION, 'tls')
@@ -66,11 +73,14 @@ class AppConfig(object):
         elif self.data_topic.find('${uuid}') != -1:
             self.data_topic = self.data_topic.replace('${uuid}', self.uuid)
 
+    def to_dict(self):
+        variables = vars(self)
+        if 'config' in variables.keys():
+            del variables['config']
+        return variables
+
     def __repr__(self):
         self.config = None
         variables = vars(self)
         del variables['config']
         return json.dumps(variables, skipkeys=False, indent=2)
-
-
-
