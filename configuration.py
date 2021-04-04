@@ -26,8 +26,9 @@ class AppConfig(object):
     keep_alive = 60,
     pub_qos = 1,
     sub_qos = 1,
-    event_topic = ""
-    cmd_topic = ""
+    event_topic = ''
+    cmd_topic = ''
+    data_topic = ''
 
     def __init__(self, config_path):
         super().__init__()
@@ -59,6 +60,11 @@ class AppConfig(object):
             self.event_topic = self.event_topic.replace('${mac}', self.mac)
         elif self.event_topic.find('${uuid}') != -1:
             self.event_topic = self.event_topic.replace('${uuid}', self.uuid)
+        self.data_topic = self.config.get(MQTT_SECTION, 'dataTopic')
+        if self.data_topic.find('${mac}') != -1:
+            self.data_topic = self.data_topic.replace('${mac}', self.mac)
+        elif self.data_topic.find('${uuid}') != -1:
+            self.data_topic = self.data_topic.replace('${uuid}', self.uuid)
 
     def __repr__(self):
         self.config = None

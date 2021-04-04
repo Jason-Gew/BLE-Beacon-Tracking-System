@@ -36,6 +36,7 @@ The topic structure:
 ```bash
  Event:   service/${region}/event/${client-uuid}
  Command: service/${region}/cmd/${client-uuid}
+ Data:    service/${region}/data/${client-uuid}
 ```
 3. Integrate sliding window algorithm to reduce the side effect of multi-path, 
    and send better average RSSI values for each supervised beacon.

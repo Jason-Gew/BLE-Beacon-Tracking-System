@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Jason/GeW'
 
@@ -127,30 +128,31 @@ class MqttMsg(object):
     """
     Standard MQTT Message in JSON format
     """
-    topic = None
-    client = None
     timestamp = None
     action = None
+    data_type = ''
+    data = None
     message = None
 
-    def __init__(self, client, action, message) -> None:
-        self.client = client
+    def __init__(self, data_type, action, message, data=None) -> None:
+        self.data_type = data_type
         self.action = action
         self.message = message
-        self.timestamp = int(time.time())
+        self.timestamp = get_timestamp()
+        self.data = data
 
     def to_json(self):
         return json.dumps(vars(self))
 
 
 # Test Only
-# if __name__ == '__main__':
-#     configure = AppConfig('config/app-config.ini')
-#     configure.load()
-#     mqtt_client = MqttUtil(configure)
-#     msg = MqttMsg(configure.uuid, "TEST", "Hello")
-#     print(msg.to_json())
-#     mqtt_client.connect()
-#     mqtt_client.publish(msg)
-#     mqtt_client.subscribe()
-#     mqtt_client.client.loop_forever()
+if __name__ == '__main__':
+    configure = AppConfig('config/app-config.ini')
+    configure.load()
+    mqtt_client = MqttUtil(configure)
+    msg = MqttMsg(configure.uuid, "TEST", "Hello")
+    print(msg.to_json())
+    mqtt_client.connect()
+    mqtt_client.publish(msg)
+    mqtt_client.subscribe()
+    mqtt_client.client.loop_forever()

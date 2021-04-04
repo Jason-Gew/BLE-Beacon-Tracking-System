@@ -44,7 +44,7 @@ def scan(duration=3):
             continue
         info = BasicBeaconInfo(data, address)
         beacon_info.append(info.to_dict())
-    return beacon_info
+    return list(beacon_info)
 
 
 # Test Only

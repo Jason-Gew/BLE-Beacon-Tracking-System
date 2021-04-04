@@ -34,11 +34,16 @@ def load_commands(path):
 
 
 def show_system_status():
-    status_info = {'os': platform.uname().system, 'core': psutil.cpu_count(), 'processor': platform.uname().processor,
-                   'cpuUsage': psutil.cpu_percent(), 'memoryUnit': "MB",
+    status_info = {'os': platform.uname().system,
+                   'core': psutil.cpu_count(),
+                   'processor': platform.uname().processor,
+                   'cpuUsage': psutil.cpu_percent(),
+                   'hostname': platform.uname().node,       # For Secure Purpose, May Need to Remove
+                   'memoryUnit': "MB",
                    'totalMemory':  int(psutil.virtual_memory().total / (1024 * 1024)),
                    'usedMemory': int(psutil.virtual_memory().used / (1024 * 1024)),
                    'memoryUsage': psutil.virtual_memory().percent,
+                   'usageUnit': "%",
                    'offsetDateTime': time.strftime(DATETIME_FORMAT, time.localtime(time.time()))}
     network_info = {}
     addresses = psutil.net_if_addrs()
@@ -53,7 +58,5 @@ def show_system_status():
 # Test Only
 if __name__ == '__main__':
     load_commands('config/commands.json')
-    # print(json.dumps(SYSTEM_CMD))
-    # print(json.dumps(APP_CMD))
     print(show_system_status())
 
