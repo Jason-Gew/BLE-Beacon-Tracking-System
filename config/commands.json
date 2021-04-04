@@ -1,0 +1,45 @@
+{
+  "system": [
+    {
+      "key": "status"
+    },
+    {
+      "key": "scan"
+    },
+    {
+      "key": "shutdown"
+    }
+  ],
+  "app": [
+    {
+      "key": "list-managed-beacons",
+      "requestType": null,
+      "responseType": "JSONArray"
+    },
+    {
+      "key": "add-managed-beacon",
+      "requestType": "JSONObject",
+      "responseType": "JSONObject"
+    },
+    {
+      "key": "remove-managed-beacon",
+      "requestType": "String",
+      "responseType": "String"
+    },
+    {
+      "key": "update-managed-beacons",
+      "requestType": "JSONObject",
+      "responseType": "String"
+    },
+    {
+      "key": "show-scan-policy",
+      "requestType": null,
+      "responseType": "JSONObject"
+    },
+    {
+      "key": "set-scan-mode",
+      "requestType": "String",
+      "responseType": "String"
+    }
+  ]
+}
