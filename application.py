@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Bluetooth LE Beacon Tracking Client Main Entry
+# Support Multiple Beacon Scan Mode, Frequency
 
 __author__ = 'Jason/GeW'
 __version__ = '2.0.0'
@@ -26,6 +27,10 @@ COMMAND_KEY = 'command'
 TRACE_KEY = 'trace'
 APP_CONFIG = None
 SHUTDOWN = False
+# Max Beacon Scan Period (Unit: Second)
+MAX_SCAN_PERIOD = 60
+# Max Single Beacon Scan Duration (Unit: Second)
+MAX_SCAN_DURATION = 10
 # -------- Static Variables End --------
 log = Logger('logs/app.log').logger
 
@@ -73,6 +78,7 @@ class CommandListener(threading.Thread):
                             system_status = json.dumps(command_parser.show_system_status())
                             self.mqtt_client.publish(system_status)
                             log.info("Published System Status: " + system_status)
+
                         elif 'shutdown' == cmd:
                             log.info("Received Shutdown Command: " + message)
                             if cmd_dict.get(TRACE_KEY) is None or len(str(cmd_dict.get(TRACE_KEY))) <= 3:
@@ -85,7 +91,8 @@ class CommandListener(threading.Thread):
                             SHUTDOWN = True
                             time.sleep(3)
                             self.mqtt_client.disconnect()
-                            quit()
+                            break
+
                         elif ('beacon-scan' == cmd or 'scan' == cmd) and cmd_dict.get(TRACE_KEY) is not None:
                             scan_duration = cmd_dict.get('duration')
                             log.info("Received Manual Beacon-Scan Requirement, Duration={}".format(scan_duration))
@@ -95,6 +102,7 @@ class CommandListener(threading.Thread):
                                 beacon_data = beacon_scanner.scan()
                             client_message = MqttMsg('JSONArray', cmd, 'OK', data=list(beacon_data))
                             self.mqtt_client.publish(client_message.to_json(), APP_CONFIG.data_topic)
+
                         elif 'change-scan-mode' == cmd and cmd_dict.get('scan-mode') is not None:
                             scan_mode = str(cmd_dict.get('scan-mode'))
                             if scan_mode.lower() != 'command' and scan_mode.lower() != 'auto':
@@ -104,14 +112,21 @@ class CommandListener(threading.Thread):
                                          .format(APP_CONFIG.scan_mode, scan_mode))
                                 APP_CONFIG.scan_mode = scan_mode
                             if cmd_dict.get('duration') is not None and isinstance(cmd_dict.get('duration'), int):
-                                if 1 < cmd_dict.get('duration') < 10:
-                                    log.info("change-scan-mode and set scan_duration [{}] -> [{}]"
+                                if 1 <= cmd_dict.get('duration') < MAX_SCAN_DURATION:
+                                    log.info("change-scan-mode and set scan_duration [{}s] -> [{}s]"
                                              .format(APP_CONFIG.scan_duration, cmd_dict.get('duration')))
                                     APP_CONFIG.scan_duration = int(cmd_dict.get('duration'))
+                            if cmd_dict.get('period') is not None and isinstance(cmd_dict.get('period'), int):
+                                if 1 <= cmd_dict.get('period') <= MAX_SCAN_PERIOD:
+                                    log.info("change-scan-mode and set scan_period [{}s] -> [{}s]"
+                                             .format(APP_CONFIG.scan_period, cmd_dict.get('period')))
+                                    APP_CONFIG.scan_period = int(cmd_dict.get('period'))
+
                         elif 'show-config' == cmd and cmd_dict.get(TRACE_KEY) is not None:
                             log.info("Received Show App Config from Trace: " + cmd_dict.get(TRACE_KEY))
                             client_message = MqttMsg('JSONObject', cmd, 'OK', data=APP_CONFIG.to_dict())
                             self.mqtt_client.publish(client_message.to_json())
+
                         else:
                             log.info("Unknown Command: " + message)
 
@@ -147,8 +162,8 @@ class ScannerThread(threading.Thread):
                 time.sleep(int(APP_CONFIG.scan_period))
                 duration = int(APP_CONFIG.scan_duration)
                 if SHUTDOWN:
-                    exit(0)
-                if 1 < duration < 10:
+                    break
+                if 1 <= duration < MAX_SCAN_DURATION:
                     beacon_data = beacon_scanner.scan(duration)
                 else:
                     beacon_data = beacon_scanner.scan()
@@ -181,10 +196,13 @@ if __name__ == '__main__':
         cmdListener.start()
         scanner.start()
         MQTT_UTIL.client.loop_forever()
+        log.info("\n\nThank You For Using, Please Refer to https://github.com/Jason-Gew/BLE-Beacon-Tracking-System "
+                 "for Any Issues or Questions\n\n")
     except KeyboardInterrupt as ki:
         SHUTDOWN = True
         log.info("User Terminate the Client...\n\n====== Thank You for Using BLE Beacon Tracking Client V{} ======\n\n"
                  .format(__version__))
+    finally:
         MQTT_UTIL.disconnect()
         cmdListener.join()
         scanner.join()

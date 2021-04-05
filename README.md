@@ -114,12 +114,13 @@ Response
   } ]
 }
 ```
-**Change Scan Mode to Auto** (duration is optional)
+**Change Scan Mode to Auto** (duration, period are optional)
 ```json
 {
    "command": "change-scan-mode",
    "scan-mode": "auto",
    "duration": 3, 
+   "period": 8,
    "trace": "test-trace-uid"
 }
 ```
