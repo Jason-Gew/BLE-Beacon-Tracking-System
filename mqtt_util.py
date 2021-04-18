@@ -54,6 +54,8 @@ class MqttUtil(object):
             self.client.on_message = self.on_msg
             self.client.on_disconnect = self.on_disconnect
             self.client.enable_logger(log)
+            if self.config.username is not None and len(self.config.username) > 1:
+                self.client.username_pw_set(self.config.username, self.config.password)
 
     def connect(self):
         self.init = True
