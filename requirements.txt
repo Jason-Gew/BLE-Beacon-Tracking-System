@@ -48,7 +48,7 @@ onboard==1.4.1
 paho-mqtt==1.5.1
 paramiko==2.6.0
 pexpect==4.6.0
-Pillow==8.1.1
+Pillow==8.3.2
 psutil==5.6.6
 pulsemixer==1.5.0
 PyBluez==0.23
@@ -80,4 +80,3 @@ unattended-upgrades==0.1
 urllib3==1.26.5
 usb-creator==0.3.7
 wadllib==1.3.3
-xkit==0.0.0
