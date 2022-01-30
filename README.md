@@ -67,6 +67,12 @@ sudo pip3 install sqlalchemy
 ```
 Or pip install based on _requirements.txt_
 
+### Configuration
+Check config/app-config.ini file, in `mqtt` section, 
+you may update to your own MQTT broker and corresponding settings.
+
+
+
 ### MQTT Command Req and Resp Example
 **Query Client Machine Status**
 ```json
