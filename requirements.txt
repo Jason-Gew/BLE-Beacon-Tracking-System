@@ -46,7 +46,7 @@ oauthlib==3.1.0
 olefile==0.46
 onboard==1.4.1
 paho-mqtt==1.5.1
-paramiko==2.6.0
+paramiko==2.10.1
 pexpect==4.6.0
 psutil==5.6.6
 pulsemixer==1.5.0
