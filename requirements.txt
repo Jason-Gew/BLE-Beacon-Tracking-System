@@ -34,7 +34,7 @@ lazr.uri==1.0.3
 lockfile==0.12.2
 louis==3.12.0
 Magnus==1.0.3
-Mako==1.1.0
+Mako==1.2.2
 MarkupSafe==1.1.0
 mate-hud==19.10.0
 mate-menu==20.4.1
