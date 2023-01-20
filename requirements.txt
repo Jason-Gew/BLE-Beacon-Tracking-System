@@ -21,7 +21,7 @@ entrypoints==0.3
 fasteners==0.14.1
 folder-color-caja==0.0.86
 folder-color-common==0.0.86
-future==0.18.2
+future==0.18.3
 gattlib==0.20201113
 greenlet==1.0.0
 idna==2.8
