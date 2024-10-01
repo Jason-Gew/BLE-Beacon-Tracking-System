@@ -24,7 +24,7 @@ folder-color-common==0.0.86
 future==0.18.3
 gattlib==0.20201113
 greenlet==1.0.0
-idna==2.8
+idna==3.7
 keyring==18.0.1
 keyrings.alt==3.4.0
 language-selector==0.1
